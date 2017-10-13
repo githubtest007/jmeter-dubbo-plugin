@@ -1,0 +1,40 @@
+### java ###
+*.class
+*.jar
+*.war
+*.ear
+
+### env ###
+target/
+/*/target/
+.mvn/
+mvnw
+mvnw.cmd
+logs
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.settings/
+/*/.classpath
+/*/.project
+/*/.settings/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+logs/

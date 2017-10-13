@@ -1,13 +1,19 @@
 package com.test.dubbo;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
@@ -19,37 +25,65 @@ import org.slf4j.LoggerFactory;
 @Getter
 @Setter
 public class DubboTestInvoker extends AbstractJavaSamplerClient {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(DubboTestInvoker.class);
-    private String parameter;
-    private String url;
-    private String service;
-    private String method;
-    private String port;
+    private static final Logger                log     = LoggerFactory
+        .getLogger(DubboTestInvoker.class);
+    private String                             parameter;
+    private String                             ip;
+    private String                             service;
+    private String                             method;
+    private String                             port;
 
+    private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+        SpringConfiguration.class);
 
-    public SampleResult runTest(JavaSamplerContext paramContext) {
-
-        log.info("paramContext:{}", paramContext);
+    public SampleResult runTest(JavaSamplerContext param) {
+        SampleResult results = new SampleResult();
+        //        results.setSampleLabel(this.name);
+        log.info("==========================================================");
+        log.info("param:{}", ToStringBuilder.reflectionToString(param, ToStringStyle.JSON_STYLE));
+        log.info("==========================================================");
 
         // check parameter
-
+        prepareParameter(param);
         // convert parameter
 
-        // invoke target
+        try {
 
-        // build response
-        SampleResult result = new SampleResult();
-        result.setResponseData("", "UTF-8");
-        result.setSuccessful(true);
+            results.sampleStart();
+
+            // invoke target
+            DubboClient client = context.getBean("dubboClient", DubboClient.class);
+            List<String> params = ParameterUtil.getRequestBodyList(parameter);
+
+            String url = "dubbo://" + ip + ":" + port;
+            ApiResponse invoke = client.invoke(url, service, method, params);
+
+            results.setResponseData(invoke.getRespText(), "UTF-8");
+            results.setSuccessful(true);
+        } catch (Exception e) {
+            results.setSuccessful(false);
+            results.setResponseMessage(e.toString());
+        } finally {
+            results.sampleEnd();
+        }
         log.info("invoke over. ");
-        return result;
+        return results;
+    }
+
+    private void prepareParameter(JavaSamplerContext param) {
+        this.parameter = param.getParameter("parameter");
+        this.ip = param.getParameter("ip");
+        this.service = param.getParameter("service");
+        this.method = param.getParameter("method");
+        this.port = param.getParameter("port");
+
     }
 
     @Override
     public Arguments getDefaultParameters() {
         Arguments param = new Arguments();
         param.addArgument("parameter", this.parameter);
-        param.addArgument("url", this.url);
+        param.addArgument("ip", this.ip);
         param.addArgument("service", this.service);
         param.addArgument("method", this.method);
         param.addArgument("port", this.port);
