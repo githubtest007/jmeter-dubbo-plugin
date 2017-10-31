@@ -2,6 +2,7 @@ package com.test.dubbo;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.jmeter.config.Arguments;
@@ -36,9 +37,9 @@ public class DubboTestInvoker extends AbstractJavaSamplerClient {
     private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
         SpringConfiguration.class);
 
+    @Override
     public SampleResult runTest(JavaSamplerContext param) {
         SampleResult results = new SampleResult();
-        //        results.setSampleLabel(this.name);
         log.info("==========================================================");
         log.info("param:{}", ToStringBuilder.reflectionToString(param, ToStringStyle.JSON_STYLE));
         log.info("==========================================================");
@@ -58,8 +59,10 @@ public class DubboTestInvoker extends AbstractJavaSamplerClient {
             String url = "dubbo://" + ip + ":" + port;
             ApiResponse invoke = client.invoke(url, service, method, params);
 
-            results.setResponseData(invoke.getRespText(), "UTF-8");
+
+            results.setResponseData(JSON.toJSONString(invoke.getOriginalResponse()), "UTF-8");
             results.setSuccessful(true);
+            results.setResponseMessage(invoke.getRespText());
         } catch (Exception e) {
             results.setSuccessful(false);
             results.setResponseMessage(e.toString());

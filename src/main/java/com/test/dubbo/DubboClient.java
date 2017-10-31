@@ -23,7 +23,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  *
- * Created by phwang on 2016/11/2.
+ * dubbo调用工具
+ * 
+ * @author phwang
+ * @date 2016/11/2
  */
 @Service
 public class DubboClient {
@@ -64,6 +67,7 @@ public class DubboClient {
                 log.debug("invoke dubbo response:{}", desc);
             }
             response.setInvokeSuccess(true);
+            response.setOriginalResponse(result);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             log.warn("invoke has InvocationTargetException:{}", cause.getMessage());
@@ -119,7 +123,7 @@ public class DubboClient {
                 }
 
                 // java引用类型
-                if (typ.getClass().getName().equals("java.lang.Class")) {
+                if ("java.lang.Class".equals(typ.getClass().getName())) {
                     if (typeName.contains("[]")) {
                         typeName = StringUtils.substring(typeName, 0, typeName.indexOf("[]"));
                         // TODO 这里写死吧，赶时间
@@ -131,7 +135,7 @@ public class DubboClient {
                         Method valueOf = typeClazz.getMethod("valueOf", String.class);
                         Object value = valueOf.invoke(typeClazz, param);
                         result.add(value);
-                    } else if (typeClazz.getName().equals("java.lang.String")) {// string
+                    } else if ("java.lang.String".equals(typeClazz.getName())) {// string
                         result.add(param);
                     } else {
                         Object value = mapper.readValue(param, typeClazz);

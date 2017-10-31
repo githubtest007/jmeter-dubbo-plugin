@@ -18,7 +18,7 @@ public class MainTest {
         AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(
             SpringConfiguration.class);
         DubboClient client = applicationContext.getBean("dubboClient", DubboClient.class);
-        String ip = "10.148.181.147";
+        String ip = "10.148.181.141dd";
         String parameter = "{'biz': '123'}";
         String service = "com.hpay.risk.limit.api.LimitCheckServiceApi";
         String method = "check";

@@ -7,7 +7,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Created by phwang on 2016/10/25.
+ *
+ * @author phwang
+ * @date 2016/10/25
  */
 
 @ToString
@@ -24,9 +26,5 @@ public class ApiResponse implements Serializable {
     private Object   responseBody;         // 接口的返回内容
     private boolean  checkResult   = true;
     private Boolean  invokeSuccess = false;
-    private String   threadCount;
-    private String   max;
-    private String   min;
-    private String   tps;
-
+    private Object   originalResponse;
 }
